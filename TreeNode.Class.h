@@ -262,20 +262,6 @@ public:
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Удаление
     void del(T val) {
         if (search(val) == -1) {
@@ -284,5 +270,110 @@ public:
         else {
 
         }
+    }
+};
+
+//Шаблонный класс узела авл дерева
+template<typename T>
+class AVLTreeNode : public TreeNode<T> {  //Название класса
+public:
+    int height;
+
+    //Конструктор с одним параметрами
+    // val - Корень дерева
+    AVLTreeNode(T val) {
+        this->value = val;
+        this->left = nullptr;
+        this->right = nullptr;
+    }
+
+    // Получение высоты узла
+    int getHeight(TreeNode<T>* node) {
+        return node == nullptr ? 0 : static_cast<AVLTreeNode<T>*>(node)->height;
+    }
+
+    // Получение баланса узла
+    int getBalance() {
+        return getHeight(this->left) - getHeight(this->right);
+    }
+
+    // Поворот вправо
+    AVLTreeNode<T>* rotateRight() {
+        AVLTreeNode<T>* newRoot = static_cast<AVLTreeNode<T>*>(this->left);
+        this->left = newRoot->right;
+        newRoot->right = this;
+
+        this->updateHeight();
+        newRoot->updateHeight();
+
+        return newRoot;
+    }
+
+    // Поворот влево
+    AVLTreeNode<T>* rotateLeft() {
+        AVLTreeNode<T>* newRoot = static_cast<AVLTreeNode<T>*>(this->right);
+        this->right = newRoot->left;
+        newRoot->left = this;
+
+        this->updateHeight();
+        newRoot->updateHeight();
+
+        return newRoot;
+    }
+
+    // Обновление высоты узла
+    void updateHeight() {
+        this->height = 1 + std::max(getHeight(this->left), getHeight(this->right));
+    }
+
+    // Вставка значения с балансировкой
+    AVLTreeNode<T>* insert(T val) {
+        // Обычная вставка как в дереве поиска
+        if (val < this->value) {
+            if (this->left == nullptr) {
+                this->left = new AVLTreeNode<T>(val);
+            }
+            else {
+                this->left = static_cast<AVLTreeNode<T>*>(this->left)->insert(val);
+            }
+        }
+        else if (val > this->value) {
+            if (this->right == nullptr) {
+                this->right = new AVLTreeNode<T>(val);
+            }
+            else {
+                this->right = static_cast<AVLTreeNode<T>*>(this->right)->insert(val);
+            }
+        }
+
+        // Обновление высоты текущего узла
+        updateHeight();
+
+        // Балансировка
+        int balance = getBalance();
+
+        // Левый тяжелый случай
+        if (balance > 1 && val < static_cast<AVLTreeNode<T>*>(this->left)->value) {
+            return rotateRight();
+        }
+
+        // Правый тяжелый случай
+        if (balance < -1 && val > static_cast<AVLTreeNode<T>*>(this->right)->value) {
+            return rotateLeft();
+        }
+
+        // Лево-правый случай
+        if (balance > 1 && val > static_cast<AVLTreeNode<T>*>(this->left)->value) {
+            this->left = static_cast<AVLTreeNode<T>*>(this->left)->rotateLeft();
+            return rotateRight();
+        }
+
+        // Право-левый случай
+        if (balance < -1 && val < static_cast<AVLTreeNode<T>*>(this->right)->value) {
+            this->right = static_cast<AVLTreeNode<T>*>(this->right)->rotateRight();
+            return rotateLeft();
+        }
+
+        return this;
     }
 };

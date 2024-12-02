@@ -55,6 +55,18 @@ int main()
     trees.deleteTree();
     cout << "===========================================================================" << endl;
 
+    AVLTreeNode<int> tree3(10);  // Создаем корень двоичного дерева с значением 10
+    tree3.insert(5);
+    tree3.insert(20);
+    tree3.insert(7);
+    tree3.insert(35);
+    tree3.printTree();
+
+    //cout << endl << "Высота: " << tree3.getHeight;
+    cout << endl << "Баланс: " << tree3.getBalance();
+
+
+    cout << "===========================================================================" << endl;
     vector<int> array;
     trees.TreeArray(array);
     cout << "Массив построенный на дереве: " << array[0];
