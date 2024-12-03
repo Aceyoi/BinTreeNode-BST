@@ -141,30 +141,21 @@ public:
         return newTreeNode;
     }
 
-    // Метод для заполнения вектора значениями дерева в порядке LNR (In-order обход)
-    void TreeArray(vector<T>& arr) const {
+    // Метод для заполнения векторного массива значениями дерева в порядке LNR (In-order обход)
+    void TreeArray(vector<T>& arr) {
+
+
         if (left != nullptr) {
             left->TreeArray(arr);  // Рекурсивный обход левого поддерева
         }
+
         arr.push_back(value);  // Добавляем значение текущего узла
+
         if (right != nullptr) {
             right->TreeArray(arr);  // Рекурсивный обход правого поддерева
         }
     }
 };    
-   
-
-
-//// Функция для добавления узлов в массив
-//template<typename T>
-//void fillArrayInOrder(TreeNode<T>* root, vector<T>* arr) {
-//    if (root->left != nullptr) {
-//        fillArrayInOrder(root->left, arr);
-//    }
-//    arr.push_back(root->value);
-//    if (root->right != nullptr) {
-//        fillArrayInOrder(root->right, arr);
-//    }
 
 //Шаблонный класс узела двоичного дерева
 template<typename T>
@@ -207,6 +198,8 @@ public:
         this->right = nullptr;
     }
 
+    // O(n) — для несбалансированного дерева
+    // O(log2n) — для сбалансированного дерева  
     // Вставка значения в дерево поиска                                                               
     void popbsn(T val) {
         if (val < this->value) {  // Если значение меньше текущего, идем в левую ветку
@@ -215,6 +208,9 @@ public:
             }
             else {
                 static_cast<BinSearchNode<T>*>(this->left)->popbsn(val);  // Рекурсивная вставка в левое поддерево
+                /*
+                Оператор static_cast использовать преобразование указателя в базовый класс в указатель на производный класс
+                */
             }
         }
         else 
@@ -228,7 +224,47 @@ public:
         }
     }
 
-    // Метод для поиска значения в дереве поиска
+    // O(n) — для не сбалансированного дерева
+    // O(log2n) — для сбалансированного дерева
+    T successor(T val) {
+        T bigval;  // Переменная для хранения преемника
+
+        BinSearchNode<T>* current = this;  // Начинаем с текущего узла
+
+        // Итеративный поиск значения и потенциального преемника
+        while (current != nullptr) {
+            if (val < current->value) {
+                // Если значение меньше текущего, запоминаем текущий элемент как возможного преемника
+                bigval = current->value;
+                current = static_cast<BinSearchNode<T>*>(current->left);
+            }
+            else if (val > current->value) {
+                // Если значение больше текущего, идём вправо
+                current = static_cast<BinSearchNode<T>*>(current->right);
+            }
+            else {
+                // Узел с искомым значением найден
+                if (current->right != nullptr) {
+                    // Если есть правое поддерево, находим минимальный элемент в нём
+                    return findMinValue(static_cast<BinSearchNode<T>*>(current->right));
+                }
+                break;
+            }
+        }
+        return bigval;
+    }
+
+    // Вспомогательный метод для нахождения минимального значения в поддереве
+    T findMinValue(BinSearchNode<T>* node) {
+        while (node->left != nullptr) {
+            node = static_cast<BinSearchNode<T>*>(node->left);
+        }
+        return node->value;
+    }
+
+    // O(n) — для несбалансированного дерева
+    // O(log2n) — для сбалансированного дерева
+    // Метод для поиска значения в дереве поиска (используется при удалении)
     T search(T val) {
         // Сравнение значения с текущим узлом
         if (val == this->value) {
@@ -245,6 +281,8 @@ public:
     return -1;
     }
 
+    // O(n) — для несбалансированного дерева
+    // O(log2n) — для сбалансированного дерева
     // Метод для проверки поиска значения в дереве поиска
     bool searchbool(T val) {
         // Сравнение значения с текущим узлом
@@ -262,6 +300,8 @@ public:
         return false;
     }
 
+    // O(n) — для несбалансированного дерева
+    // O(log2n) — для сбалансированного дерева
     // Удаление
     void del(T val) {
         if (search(val) == -1) {
@@ -377,3 +417,4 @@ public:
         return this;
     }
 };
+

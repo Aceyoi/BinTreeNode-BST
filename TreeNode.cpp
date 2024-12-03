@@ -13,7 +13,8 @@ int main()
     setlocale(LC_ALL, "Russian");
 
     testcheck();
-    
+
+    cout << "BinTreeNode===========================================================================" << endl;
     BinTreeNode<int> tree(10);  // Создаем корень двоичного дерева с значением 10
     tree.popbtn(5);
     tree.popbtn(20);
@@ -31,7 +32,7 @@ int main()
     tree.traverseInOrder();
     cout << endl;
     tree.deleteTree();
-    cout << "==========================================================================="<< endl;
+    cout << "BinSearchNode==========================================================================="<< endl;
     BinSearchNode<int> trees(10);  // Создаем корень двоичного дерева с значением 10
     trees.popbsn(5);
     trees.popbsn(20);
@@ -39,6 +40,8 @@ int main()
     trees.popbsn(35);
 
     trees.printTree();
+    cout << endl << "Поиск следующего наибольшего после 7 : " << trees.successor(7) << endl;
+    cout << endl << "Поиск следующего наибольшего после 10 : " << trees.successor(10) << endl;
     cout << endl << "Глубина дерева: " << trees.depth() << endl;
     cout << "Количество узлов: " << trees.countNodes() << endl;
     cout << endl << "Обход LRN: ";
@@ -52,7 +55,6 @@ int main()
     trees.del(10);
     trees.printTree();
     cout << endl;
-    trees.deleteTree();
     cout << "===========================================================================" << endl;
 
     AVLTreeNode<int> tree3(10);  // Создаем корень двоичного дерева с значением 10
@@ -63,13 +65,14 @@ int main()
     tree3.printTree();
 
     //cout << endl << "Высота: " << tree3.getHeight;
-    cout << endl << "Баланс: " << tree3.getBalance();
+    cout << endl << "Баланс: " << tree3.getBalance() << endl;
 
 
     cout << "===========================================================================" << endl;
     vector<int> array;
     trees.TreeArray(array);
-    cout << "Массив построенный на дереве: " << array[0];
+    cout << "Массив построенный на дереве: ";
+
     printmass(array);
 
     return 0;

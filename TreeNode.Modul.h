@@ -15,3 +15,5 @@ void printmass(vector<T>& arr) {
     }
     cout << endl;
 }
+
+
