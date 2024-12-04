@@ -11,7 +11,7 @@ using namespace std;
 //Шаблонный класс узела дерева
 template<typename T>
 class TreeNode {  //Название класса
-protected:
+public:
     T value;            // Хранимое значение узла                                                              
     TreeNode<T>* left;  // Указатель на левую ветку
     TreeNode<T>* right; // Указатель на правую ветку
@@ -40,7 +40,7 @@ protected:
         this->left = left;
         this->right = right;
     }
-public:
+
     // Вспомогательная функция для отображения дерева (Симметричный обход)
     void printTree(int level = 0) const {
         if (right != nullptr) {
@@ -53,6 +53,14 @@ public:
         if (left != nullptr) {
             left->printTree(level + 1);  // Рекурсивный вывод левого поддерева
         }
+    }
+
+    // Проверка, пустое ли дерево
+    bool isEmpty() const {
+        if (value == T{} && left == nullptr && right == nullptr)
+            return true;
+        else 
+            return false;
     }
 
     // Удаление всех узлов
@@ -107,21 +115,33 @@ public:
 
     // Подсчёт количества узлов в дереве  
     int countNodes() {
-        int count = 1;  // Считаем корень
-        if (left != nullptr) {
-            count += left->countNodes();  // Подсчёт в левой части
+        if (isEmpty() == true) {
+            return 0;
         }
-        if (right != nullptr) {
-            count += right->countNodes();  // Подсчёт в правой части
+        else {
+
+            int count = 1;  // Считаем корень
+            if (left != nullptr) {
+                count += left->countNodes();  // Подсчёт в левой части
+            }
+            if (right != nullptr) {
+                count += right->countNodes();  // Подсчёт в правой части
+            }
+            return count;
         }
-        return count;
     }
 
     // Определение глубины дерева
     int depth() {
-        int leftDepth = left ? left->depth() : 0;
-        int rightDepth = right ? right->depth() : 0;
-        return 1 + max(leftDepth, rightDepth);
+        if (isEmpty() == true) {
+            return -1;
+        }
+        else {
+
+            int leftDepth = left ? left->depth() : 0;
+            int rightDepth = right ? right->depth() : 0;
+            return 1 + max(leftDepth, rightDepth);
+        }
     }
 
     // Поверхностное копирование
@@ -228,7 +248,7 @@ public:
     // O(log2n) — для сбалансированного дерева
     T successor(T val) {
         T bigval;  // Переменная для хранения преемника
-
+        bool found = false;  // Флаг для отслеживания, был ли найден узел с val
         BinSearchNode<T>* current = this;  // Начинаем с текущего узла
 
         // Итеративный поиск значения и потенциального преемника
@@ -243,15 +263,22 @@ public:
                 current = static_cast<BinSearchNode<T>*>(current->right);
             }
             else {
-                // Узел с искомым значением найден
+                // Узел с искомым значением найден  
+                found = true;///                        
                 if (current->right != nullptr) {
                     // Если есть правое поддерево, находим минимальный элемент в нём
                     return findMinValue(static_cast<BinSearchNode<T>*>(current->right));
+
                 }
                 break;
             }
         }
-        return bigval;
+        if (found == true) {
+            return bigval;
+        }
+        else {
+            return val;
+        }
     }
 
     // Вспомогательный метод для нахождения минимального значения в поддереве
@@ -291,130 +318,115 @@ public:
         }
         if (val < this->value && this->left != nullptr) {
             // Если значение меньше, то ищем в левом поддереве
-            return static_cast<BinSearchNode<T>*>(this->left)->search(val);  // Поиск в левом поддереве        }
+            return static_cast<BinSearchNode<T>*>(this->left)->searchbool(val);  // Поиск в левом поддереве        }
         }
         if (val > this->value && this->right != nullptr) {
             // Если значение больше, то ищем в правом поддереве
-            return static_cast<BinSearchNode<T>*>(this->right)->search(val);  // Поиск в правом поддереве        }
+            return static_cast<BinSearchNode<T>*>(this->right)->searchbool(val);  // Поиск в правом поддереве        }
         }
         return false;
     }
 
     // O(n) — для несбалансированного дерева
     // O(log2n) — для сбалансированного дерева
-    // Удаление
+    // Удаление значения из дерева поиска
     void del(T val) {
-        if (search(val) == -1) {
-        cout << endl << "Не найденно число для удаления" << endl; // Нулевой случай: удаляемый элемент отсутствует
+        // Если значение меньше текущего узла, идём влево
+        if (val < this->value && this->left != nullptr) {
+            // Проверяем, является ли левый потомок искомым узлом
+            if (this->left->value == val) {
+                TreeNode<T>* target = this->left; // Узел для удаления
+                // Обрабатываем случай, если у узла есть потомки
+                if (target->left == nullptr && target->right == nullptr) {
+                    // Узел не имеет потомков
+                    delete target;
+                    this->left = nullptr;
+                }
+                else if (target->left != nullptr && target->right == nullptr) {
+                    // Узел имеет только левого потомка
+                    this->left = target->left;
+                    delete target;
+                }
+                else if (target->left == nullptr && target->right != nullptr) {
+                    // Узел имеет только правого потомка
+                    this->left = target->right;
+                    delete target;
+                }
+                else {
+                    // Узел имеет обоих потомков
+                    TreeNode<T>* successorParent = target;
+                    TreeNode<T>* successor = target->right;
+                    while (successor->left != nullptr) {
+                        successorParent = successor;
+                        successor = successor->left;
+                    }
+                    target->value = successor->value; // Замена значений
+                    if (successorParent->left == successor) {
+                        successorParent->left = successor->right;
+                    }
+                    else {
+                        successorParent->right = successor->right;
+                    }
+                    delete successor;
+                }
+            }
+            else {
+                // Рекурсивное удаление в левом поддереве
+                static_cast<BinSearchNode<T>*>(this->left)->del(val);
+            }
+        }
+        // Если значение больше текущего узла, идём вправо
+        else if (val > this->value && this->right != nullptr) {
+            // Проверяем, является ли правый потомок искомым узлом
+            if (this->right->value == val) {
+                TreeNode<T>* target = this->right; // Узел для удаления
+                // Обрабатываем случай, если у узла есть потомки
+                if (target->left == nullptr && target->right == nullptr) {
+                    // Узел не имеет потомков
+                    delete target;
+                    this->right = nullptr;
+                }
+                else if (target->left != nullptr && target->right == nullptr) {
+                    // Узел имеет только левого потомка
+                    this->right = target->left;
+                    delete target;
+                }
+                else if (target->left == nullptr && target->right != nullptr) {
+                    // Узел имеет только правого потомка
+                    this->right = target->right;
+                    delete target;
+                }
+                else {
+                    // Узел имеет обоих потомков
+                    TreeNode<T>* successorParent = target;
+                    TreeNode<T>* successor = target->right;
+                    while (successor->left != nullptr) {
+                        successorParent = successor;
+                        successor = successor->left;
+                    }
+                    target->value = successor->value; // Замена значений
+                    if (successorParent->left == successor) {
+                        successorParent->left = successor->right;
+                    }
+                    else {
+                        successorParent->right = successor->right;
+                    }
+                    delete successor;
+                }
+            }
+            else {
+                // Рекурсивное удаление в правом поддереве
+                static_cast<BinSearchNode<T>*>(this->right)->del(val);
+            }
+        }
+        // Если значение совпадает с корнем дерева
+        else if (val == this->value) {
+            // Обработка корневого узла при удалении, если потребуется
+            cout << "Удаление корня дерева не поддерживается этим методом." << endl;
         }
         else {
-
+            // Значение не найдено
+            cout << "Значение " << val << " не найдено в дереве." << endl;
         }
     }
 };
-
-//Шаблонный класс узела авл дерева
-template<typename T>
-class AVLTreeNode : public TreeNode<T> {  //Название класса
-public:
-    int height;
-
-    //Конструктор с одним параметрами
-    // val - Корень дерева
-    AVLTreeNode(T val) {
-        this->value = val;
-        this->left = nullptr;
-        this->right = nullptr;
-    }
-
-    // Получение высоты узла
-    int getHeight(TreeNode<T>* node) {
-        return node == nullptr ? 0 : static_cast<AVLTreeNode<T>*>(node)->height;
-    }
-
-    // Получение баланса узла
-    int getBalance() {
-        return getHeight(this->left) - getHeight(this->right);
-    }
-
-    // Поворот вправо
-    AVLTreeNode<T>* rotateRight() {
-        AVLTreeNode<T>* newRoot = static_cast<AVLTreeNode<T>*>(this->left);
-        this->left = newRoot->right;
-        newRoot->right = this;
-
-        this->updateHeight();
-        newRoot->updateHeight();
-
-        return newRoot;
-    }
-
-    // Поворот влево
-    AVLTreeNode<T>* rotateLeft() {
-        AVLTreeNode<T>* newRoot = static_cast<AVLTreeNode<T>*>(this->right);
-        this->right = newRoot->left;
-        newRoot->left = this;
-
-        this->updateHeight();
-        newRoot->updateHeight();
-
-        return newRoot;
-    }
-
-    // Обновление высоты узла
-    void updateHeight() {
-        this->height = 1 + std::max(getHeight(this->left), getHeight(this->right));
-    }
-
-    // Вставка значения с балансировкой
-    AVLTreeNode<T>* insert(T val) {
-        // Обычная вставка как в дереве поиска
-        if (val < this->value) {
-            if (this->left == nullptr) {
-                this->left = new AVLTreeNode<T>(val);
-            }
-            else {
-                this->left = static_cast<AVLTreeNode<T>*>(this->left)->insert(val);
-            }
-        }
-        else if (val > this->value) {
-            if (this->right == nullptr) {
-                this->right = new AVLTreeNode<T>(val);
-            }
-            else {
-                this->right = static_cast<AVLTreeNode<T>*>(this->right)->insert(val);
-            }
-        }
-
-        // Обновление высоты текущего узла
-        updateHeight();
-
-        // Балансировка
-        int balance = getBalance();
-
-        // Левый тяжелый случай
-        if (balance > 1 && val < static_cast<AVLTreeNode<T>*>(this->left)->value) {
-            return rotateRight();
-        }
-
-        // Правый тяжелый случай
-        if (balance < -1 && val > static_cast<AVLTreeNode<T>*>(this->right)->value) {
-            return rotateLeft();
-        }
-
-        // Лево-правый случай
-        if (balance > 1 && val > static_cast<AVLTreeNode<T>*>(this->left)->value) {
-            this->left = static_cast<AVLTreeNode<T>*>(this->left)->rotateLeft();
-            return rotateRight();
-        }
-
-        // Право-левый случай
-        if (balance < -1 && val < static_cast<AVLTreeNode<T>*>(this->right)->value) {
-            this->right = static_cast<AVLTreeNode<T>*>(this->right)->rotateRight();
-            return rotateLeft();
-        }
-
-        return this;
-    }
-};
-

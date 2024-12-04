@@ -6,6 +6,8 @@
 #include "TreeNode.Class.h"
 #include "TreeNode.Modul.h"
 #include "TreeNode.Test.h"
+#include "TreeNode.ClassIterator.h"
+
 using namespace std;
 
 int main()
@@ -51,23 +53,12 @@ int main()
     cout << endl << "Обход LNR: ";
     trees.traverseInOrder();
 
-    cout << endl << "Находим элемент 7: " << trees.search(7);
-    trees.del(10);
+    cout << endl << "Находим элемент 7: " << trees.search(7) << endl;
+    cout << "Удаляем элемент 7: " << endl;
+    trees.del(7);
+
     trees.printTree();
     cout << endl;
-    cout << "===========================================================================" << endl;
-
-    AVLTreeNode<int> tree3(10);  // Создаем корень двоичного дерева с значением 10
-    tree3.insert(5);
-    tree3.insert(20);
-    tree3.insert(7);
-    tree3.insert(35);
-    tree3.printTree();
-
-    //cout << endl << "Высота: " << tree3.getHeight;
-    cout << endl << "Баланс: " << tree3.getBalance() << endl;
-
-
     cout << "===========================================================================" << endl;
     vector<int> array;
     trees.TreeArray(array);
